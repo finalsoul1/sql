@@ -1,0 +1,10 @@
+emp
+
+sal = 10% 인상
+
+delete from emp;
+update emp set sal = sal + (sal*10%);
+
+1. 백업이 필요한가요?
+2. 롤백세그먼트를 DBA에게 unlimited로 받아야 하는가?
+rollback segment overflow 를 대비해서

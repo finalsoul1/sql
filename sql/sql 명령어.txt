@@ -1,0 +1,25 @@
+-- 한줄주석
+
+/* 주석 */
+
+명령어 : 세미콜론;
+
+select * 공백안됨
+from table
+
+
+2PC : 2phase commit
+
+<process> --> america
+	  --> europe
+all or nothing
+
+*기본형식
+	         순서
+select -- 필수1   --5
+from -- 필수2    --1
+where              --2
+group by          --3
+having order by  --4
+order by           --6
+
