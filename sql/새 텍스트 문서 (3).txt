@@ -1,0 +1,29 @@
+dictionary ==> 접두어가...DBA, ALL, USER의 3가지가 존재한다
+
+DBA_ ==> SYS, SYSTEM이 만들어 놓은 OBJECT
+
+ALL ==> 다른 사용자, 예를 들어 TEST1이 만들어서 TEST2에게 권한을 준것
+
+USER_ ==> 내가 만든 오브젝트... 오라클은 기본적으로 만든 사람이
+	   모든 권한을 갖는다.
+
+예1) 사용자 TEST1이 EMP_TEST1이라는 테이블을 만들어서 사용자 SCOTT에게
+EMP_TEST1에 select, insert, update, delete 권한을 주었을때
+select * from test1.emp_test1;
+위의 형태로 해야한 select가 오류없이 성공한다
+
+만약에 emp_test1 라는 테이블 내가 직접만들었다면 바로 접근가능
+
+dual 이라는 dummy table sys가 만들어서 synonym 만든후에
+public(누구나 전부 사용가능)으로 배포한 프로젝트이다.
+
+
+
+
+select deptno, count(*), sum(sal), max(sal), min(sal) from emp group by deptno;
+
+select deptno, count(*), sum(sal), max(sal), min(sal) from emp group by rollup(deptno);
+
+함수를 사용하면 null 데이터는 사라진다.
+예를들어 평균을 구할때 null이 있는 사람은 평균을 구하는 숫자에서 제외하기 때문에
+잘못된 데이터가 나올수 있음

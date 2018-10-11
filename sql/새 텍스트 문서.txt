@@ -8,3 +8,74 @@ update emp set sal = sal + (sal*10%);
 1. 백업이 필요한가요?
 2. 롤백세그먼트를 DBA에게 unlimited로 받아야 하는가?
 rollback segment overflow 를 대비해서
+
+select * from emp where ename like '윤%'  --시작이 윤 
+select * from where ename like '%호'  -- 끝이 호
+select * from where ename like '%성%' -- 중간이 성
+
+
+sal > any (500,600,700);
+sal > 500 or sal > 600 or sal > 700;
+sal > 500;
+
+sal = any (500, 600, 700)
+sal = 500 or sal = 600 or sal = 700
+sal in (500, 600, 700)
+
+sal > all(500,600,700)
+sal > 500 and sal > 600 and sal > 700
+sal > 700
+
+select name, addr
+from (
+        select name, addr from customer1
+        union
+        select name, addr from customer2
+}
+order by name;
+
+*
+의사 컬럼, 가상 컬럼, pseudo column
+
+rowid, rownum
+
+select --3 (컬럼선택완료)
+from --1
+where --2
+order by --4
+
+3이 되면서 select에 건by건으로 fetch가 되면서 rownum이 1,2,3,4 부여가 된다.
+정렬은 번호가 부여된 다음에 됨
+
+O 1. select * from emp where rownum = 1;
+X 2. select * from emp where rownum = 2;
+X 3. select * from emp where rownum = 3;
+
+X 4. select * from emp where rownum > 2;
+X 5. select * from emp where rownum >= 2;
+O 6. select * from emp where rownum < 2;
+O 7. select * from emp where rownum <= 2;
+
+1이 있어야 2가 존재함. 따라서 1이 있는 경우만 가져올 수 있음
+
+select rownum, a.* from(select * from emp order by sal desc) a;
+이런식으로 하면 정렬한 순서대로 rownum이 붙음
+
+* NULL
+
+null은 타입(number, varchar2, data)이 없다.
+
+union, intersect, minus: 쪽수 맞추기에 활용
+
+(emp.sal * 12) + comm = null
+뭐든지에 0을 곱하면 0이 되는 것처럼.. null이 연산에 참여하면 null이 된다.
+
+select
+from
+where comm is null, is not null
+
+where nvl(comm, 0) != 0
+
+nvl, nvl2, nullif
+
+
