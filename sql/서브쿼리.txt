@@ -1,0 +1,260 @@
+DML + DML
+
+서브쿼리 select select
+
+1. 스칼라 서브쿼리 (잘안씀)
+select empno, ename, deptno,
+	(select dname from dept where dept.deptno = emp.deptno)
+from emp;
+
+2. 인라인뷰
+select empno, ename, a.deptno, dname
+from emp a, (select deptno, dname from dept) b
+where a.deptno = b.deptno;
+
+3. 네스티드 서브쿼리(nested sub-query)
+select *
+from emp
+where deptno = (select deptno from emp where ename = 'SMITH')
+and ename != 'SMITH';
+
+상관서브쿼리(co-related sub-query)
+select deptno, ename, sal
+from emp e1
+where sal = (select max(sal) from emp e2 where e1.deptno = e2.deptno)
+order by deptno;
+
+
+
+* EMP 테이블에서 급여가 가장 적은 사원의 이름과 급여
+
+네스티드
+select ename, sal
+from emp
+where sal = (select min(sal) from emp);
+
+인라인뷰
+select ename, sal
+from emp a, (select min(sal) min_sal from emp) b
+where a.sal = b.min_sal;
+
+* EMP 테이블에서 부서코드가 30번인 부서의 급여 최소값보다 해당 부서 급여의 
+최소값이 큰 부서만 출력하되 부서 순으로 오름차순으로 정렬 하시오. 
+
+해석순서
+- 조건은 서브쿼리, 출력은 메인쿼리.
+
+-> select deptno from emp <condition> order by deptno asc;
+
+-> 
+select e1.deptno 
+from emp e1 
+where min(sal) > (select min(sal) from emp where deptno = 30)
+order by deptno asc;
+(에러: 그룹 함수는 허가되지 않습니다) 
+
+->
+select e1.deptno, min(sal)
+from emp e1
+group by e1.deptno
+having min(sal) > (select min(sal) from emp where deptno = 30)
+order by e1.deptno;
+
+이 예문에서 기억 해야 하는 사실은 
+첫째 서브쿼리는 WHERE절 뿐 아니라 HAVING절에서도 사용 가능하며 
+둘째 WHERE절이 각 행에 조건을 줘서 선택되는 행을 제어 하듯이 HAVING절은 GROUP BY에 의해  그룹화 되는 그룹에 조건을 줄 때 사용하는 것으로 반드시 HAVING은 GROUP BY 뒤에 와야 하며, 셋째 HAVING이 사용되면 대부분 GROUP BY가 있지만 GROUP BY 없는 HAVING의 사용도 가능 하 다. 
+넷째 ORDER BY절은 SELECT문의 마지막에 오며, 
+다섯째 SELECT절에 그룹 함수 외의 컬럼이 나타나면 반드시 GROUP BY절에 해당 컬럼이 나타나야 한다.
+
+ex)
+select sum(sal) from emp;
+
+select job, sum(sal) from emp group by job;
+select job, deptno, mgr, sum(sal) from emp group by job, deptno, mgr;
+
+그룹핑룰
+- SELECT절에 그룹 함수 외의 컬럼이 나타나면 반드시 GROUP BY절에 해당 컬럼이 나타나야 한다.
+-> 보고싶은 순서로 select절에 입력하고 그대로 복사해서 group by에 넣자 (group by에 칼럼 순서가 중요하다)
+
+예외 - select max(avg(sal)) from emp group by job
+- group by에 job이 있어도 select 에 한가지 값을 보여주는 함수가 나오면 저 룰에 상관없어짐
+
+
+EMP Table에는 여러 종류의 직무(JOB)가 있다. 다음 예문은 각 JOB의 평균 급여가 최대인 JOB과
+그 평균 급여를 출력 하는 예문이다.
+
+* 읽는 순서
+select job, avg(sal) 
+from emp  --- 1 
+group by job --- 2
+having avg(sal) = (select max(avg(sal)) from emp group by job); --- 3
+(비교연산자를 쓰면 오른쪽 구문은 한 건만 리턴한다)
+
+
+
+1. 부서코드가 10인 사원들 중 최대/최소 급여를 받는 사원의 이름, 급여, 부서를 출력
+
+select ename, sal, deptno
+from emp
+where (deptno = 10 and sal = (select max(sal) from emp where deptno = 10))
+or      (deptno = 10 and sal = (select min(sal) from emp where deptno = 10));
+
+select ename, sal, deptno
+from emp
+where deptno = 10
+and sal in((select max(sal) from emp where deptno = 10), 
+             (select min(sal) from emp where deptno = 10));
+
+인라인 
+select a.ename, a.sal, a.deptno
+from emp a, (select max(sal) max_sal, min(sal) min_sal
+	     from emp
+	     where deptno = 10) b
+where a.sal = b.max_sal or a.sal = b.min_sal;
+
+(from절에서 많이 걸러주는게 좋다)
+
+
+
+SMITH와 같은 JOB, 같은 부서를 가지는 사원의 이름, 직무, 부서를 출력하는데
+SMITH는 출력하지 마시오
+
+select ename, job, deptno
+from emp
+where ename != ''SMITH'
+and job = (select job from emp where ename = 'SMITH');
+
+----------
+
+select deptno, ename, sal
+from emp
+where (deptno, sal) in (select deptno, min(sal)
+			from emp
+			group by deptno);
+
+select a.deptno, a.ename, a.sal
+from emp a, (select deptno, min(sal) min_sal
+         	     from emp
+	     group by deptno) b
+where a.deptno = b.deptno
+and a.sal = b.min_sal;
+
+----------
+
+select deptno, ename, sal from emp
+where sal in (select min(sal) from emp
+ group by deptno)
+and deptno in (select distinct deptno from emp)
+
+
+-----
+상관 서브쿼리 
+
+부서별로 맥시멈 급여 받는 사람
+select deptno, ename, sal 
+from emp e1
+where sal = (select max(sal) 
+	     from emp e2
+ 	     where e1.deptno = e2.deptno)
+order by deptno;
+
+(반복문처럼 자료가 없을때까지 하나씩 불러들임)
+1. emp e1 메인쿼리에서 한 건을 읽어온다
+	20, SMITH, 
+2. select max(sal) from emp e2
+ where e2.deptno = 20;
+	3000
+3. select deptno, ename, sal 
+from emp e1
+where sal = 3000;
+	20, SCOTT, 3000
+	20, FORD, 3000
+(스미스와 같은 부서20에서 최고급여받는 사람은 스캇과 포드)
+4. 1번에 읽은 SMITH, 3번에 읽은 SCOTT, FORD가 같은지 비교한다
+(예를들어 처음 읽은 스미스는 최고급여받는 사람이 아니기 때문에 버림)
+같으면 select에 fetch하고 같지 않으면 버린다.
+5. 위의 1,2,3,4를 반복해서 수행한다.
+
+
+인라인
+select e1.deptno, e1.ename, e1.sal 
+from emp e1, (select deptno, max(sal) max_sal
+	       from emp
+	       group by deptno) e2
+where e1.deptno = e2.deptno
+and e1.sal = e2.max_sal
+order by e1.deptno;
+
+
+select deptno, ename, sal 
+from emp e1
+where sal = (select max(sal) 
+	     from emp e2
+ 	     where e1.deptno = e2.deptno)
+order by deptno;
+
+1. 인라인뷰
+
+
+2. pair-wise
+select deptno, ename, sal
+from emp
+where (deptno, sal) in(select deptno, max(sal) from emp group by deptno)
+
+
+각 job 별로 최대 급여를 받는 사원의 직무, 이름, 급여를 출력하는데
+직무명으로 오름차순 정렬하여 출력하는 예문
+
+1. 상관서브쿼리
+select job, ename, sal
+from emp e1
+where sal = (select max(sal) from emp e2
+	  where e1.job = e2.job)
+order by job;
+
+2. 인라인뷰
+select job, ename, sal
+from emp e1, (select job, max(sal) from emp
+	       group by job) e2
+where e1.job = e2.job
+order by job;
+
+3. pair-wise
+select job, ename, sal
+from emp
+where (job, sal) in(select job, max(sal) from emp group by job)
+order by job;
+
+
+
+* 상관 서브쿼리 패턴2
+
+EMP 테이블에서 급여가 높은 사원 5명을 출력 하는 예문
+select ename, sal from emp e1
+ where 5 > (select count(*) from emp e2
+ 	    where e2.sal > e1.sal)
+ order by sal desc;
+
+(반복문처럼 자료가 없을때까지 하나씩 불러들임)
+1. select ename, sal from emp e1
+	스미스, 800
+2. select count(*) from emp e2
+ where e2.sal > 800
+	13명
+3. select ename, sal from emp e1 where 5 > 13
+	2. 에서 13을 반환해 5>13은 false 므로 패치안함
+
+(결과적으로 자신보다 급여가 많은사람이 0명있는 사람부터 4명있는사람까지 5명이 찍힘)
+
+
+--응용 부서별 급여 제일 많이 받는 사람
+select ename, deptno, sal from emp e1
+ where 1 > (select count(*) from emp e2
+ 	    where e2.sal > e1.sal
+	    and e1.deptno = e2.deptno)
+ order by sal desc;
+
+패턴3
+--사원이 한명이라도 있는 부서명 출력
+select dname from dept d
+where exists (select 1 from emp where deptno = d.deptno);

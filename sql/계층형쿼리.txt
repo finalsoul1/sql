@@ -1,0 +1,24 @@
+°¡Àå ¹Ø¹Ù´Ú °èÃþ = leaf
+
+BOM
+
+https://m.blog.naver.com/javaking75/220010288704
+
+
+dept, emp
+school, student
+
+rowid, rownum : °¡»óÄÃ·³
+
+
+SELECT EMPNO, 
+	ENAME,
+	PRIOR ENAME,
+ CONNECT_BY_ROOT ENAME,
+ SYS_CONNECT_BY_PATH(ENAME, '/') °æ·Î,
+CONNECT_BY_ISLEAF,
+LEVEL,
+CONNECT_BY_ISCYCLE
+FROM EMP
+START WITH ENAME = 'KING'
+CONNECT BY NOCYCLE PRIOR EMPNO = MGR

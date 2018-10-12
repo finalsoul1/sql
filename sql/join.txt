@@ -1,0 +1,50 @@
+join
+
+개발표준) 레프트 아우터 조인만 써라
+
+1. ORACLE
+ 1-1. (INNER) JOIN
+ 1-2. OUTER JOIN
+	가. LEFT OUTER JOIN // 오른편에 (+)
+	나. RIGHT OUTER JOIN
+
+2. ANSI
+ 2-1. (INNER) JOIN
+ 2-2. OUTER JOIN
+	가. LEFT OUTER JOIN
+	나. RIGHT OUTER JOIN
+	다. FULL OUTER JOIN
+
+* 오라클조인
+select empno, ename, sal, a.deptno, b.*
+from emp a, dept b
+where a.deptno = b.deptno(+);
+
+=> 라이트 아우터 조인으로
+
+select empno, ename, sal, a.deptno, b.*
+from dept b, emp a
+where a.deptno(+) = b.deptno;
+
+
+
+
+* 안시조인
+select empno, ename, sal, a.deptno, b.*
+from emp a left outer join dept b 
+on a.deptno = b.deptno;
+
+=> 라이트 아우터 조인으로
+
+select empno, ename, sal, a.deptno, b.*
+from dept b left outer join emp a
+on a.deptno = b.deptno;
+
+풀 아우터 조인
+select ename, emp.deptno, dept.deptno, dname 
+from emp full outer join dept 
+on emp.deptno = dept.deptno
+order by emp.deptno
+
+
+아우터 조인의 아우터 조인은 안걸린다

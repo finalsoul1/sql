@@ -1,0 +1,14 @@
+제품 구분별로 월별 총액을 구하라.
+
+1. @year ==> select * from sale where to_char(sale_date,'yyyy') = @year;
+2. select sum(decode(to_char(sale_date,'mm'), '01', sale_amount)) jan_amount,
+      sum(decode(to_char(sale_date,'mm'), '02', sale_amount)) feb_amount,
+      sum(to_char(sale_date,'00'), '01', 1) jan_count,
+3. select gubun, ....... from sale where @year group by gubun;
+
+
+select * from user_tables where table_name = 'EMP'
+
+NUM_ROWS = 14
+BLOCKS = 5
+AVG_ROW_LEN = 38
